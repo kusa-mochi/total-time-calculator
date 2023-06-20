@@ -1,6 +1,10 @@
 package lib
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 type PunchInTime struct {
 	Hour   int
@@ -19,6 +23,20 @@ func NewPunchInTimeUsingTimeParams(h int, m int) PunchInTime {
 		Hour:   h,
 		Minute: m,
 	}
+}
+
+func NewPunchInTimeUsingTimeFormat(s string) PunchInTime {
+	timeValues := strings.Split(s, ":")
+	h, _ := strconv.Atoi(timeValues[0])
+	m, _ := strconv.Atoi(timeValues[1])
+	return NewPunchInTimeUsingTimeParams(h, m)
+}
+
+func IsOverLunchTime(startTime *PunchInTime, endTime *PunchInTime) bool {
+	isBeforeNeen := startTime.Hour < 12
+	isAfter13 := endTime.Hour > 12
+	isLunchTimeIn12 := endTime.Hour == 12 && endTime.Minute >= 45
+	return (isBeforeNeen && (isAfter13 || isLunchTimeIn12))
 }
 
 // t + tm
@@ -53,4 +71,8 @@ func (t *PunchInTime) Print() {
 	h := t.Hour
 	m := t.Minute
 	fmt.Printf("%v:%v\n", h, m)
+}
+
+func (t *PunchInTime) IsInLunchTime() bool {
+	return (t.Hour == 12 && 0 <= t.Minute && t.Minute <= 45)
 }
